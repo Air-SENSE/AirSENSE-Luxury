@@ -14,4 +14,6 @@ Thông số kỹ thuật:
 - Có bộ nhớ lưu trữ và xử lý hình ảnh.
 
 ###Hướng dẫn sử dụng
-link: https://youtu.be/jaTt9mgVYS4
+link: 
+- https://youtu.be/jaTt9mgVYS4
+- https://duannho.com/2021/12/29/b41-lam-quen-man-hinh-cam-ung-hmi/
