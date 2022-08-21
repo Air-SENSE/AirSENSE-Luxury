@@ -9,6 +9,8 @@
 #include "./config.h"
 #include "./SHT85.h"
 #include "./TFLP01.h"
+#include "ozone.h"
+#include "calib.h"
 //#include "FireBase.h"
 //#include <FirebaseESP32.h>
 /////////////////
@@ -32,7 +34,7 @@ char  TFT_string[10];
 
 float temp=20.5;
 float humi=60;
-  int yearCalib = 2021;
+int yearCalib = 2021;
 int   TFT_o3_ppb = 0;
 float TFT_o3_ppm = 0;
 float TFT_o3_ug  = 0;
@@ -76,6 +78,7 @@ void setup() {
   SDcard_init();
   timeClient.begin();
   SHT85_init();
+  Ozone_init();
   DS3231_init();
   initMqttClient(topic, espID, mqttClient);
   setup_TFT();
@@ -111,7 +114,7 @@ void loop() {
     getSHTdata();
     getTFLP01data();
     getDS3231data();
-    getO3data();
+    TFT_o3_ppm =(float) get_OzoneData() /1000.0;
     senddatatoTFT();
     
     if((millis()-lastsenddatatoSD_MQTT> 10000) || (millis()<lastsenddatatoSD_MQTT))
@@ -123,4 +126,11 @@ void loop() {
     }
     mqttClient.loop();
 
+//    
+//    save_temp();
+//    save_humi();
+//    save_pm1();
+//    save_pm10();
+//    save_pm25();
+//    save_ozone();
 }

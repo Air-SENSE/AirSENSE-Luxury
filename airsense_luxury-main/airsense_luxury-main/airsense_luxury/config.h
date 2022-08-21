@@ -8,6 +8,15 @@
 
 #define ERROR_READ_DISPLAY 777777
 
+
+
+// Ozone sensor
+
+#define COLLECT_NUMBER 20     // collect number, the collection range is 1-100
+#define Ozone_IICAddress 0x73 // I2C address of Ozone Sensor
+extern int a_ozoneConcentration_Calib = 0;
+extern int b_ozoneConcentration_Calib = 0;
+
 extern int dataCalibInt = 0;
 extern int tempCalibInt = 0;
 extern int humiCalibInt = 0;
