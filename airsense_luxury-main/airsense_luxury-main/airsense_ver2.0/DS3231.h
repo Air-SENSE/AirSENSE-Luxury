@@ -45,7 +45,8 @@ void DS3231_init()
  *
  * @return  None
  */
-void getDS3231data(){
+void getDS3231data()
+{
     DateTime now = rtc.now();
     if(now.hour()<10 && now.minute()<10){
       sprintf(TFT_time,"0%d:0%d  %d/%d/%d",int(now.hour()),int(now.minute()),int(now.day()),int(now.month()),int(now.year()%2000));

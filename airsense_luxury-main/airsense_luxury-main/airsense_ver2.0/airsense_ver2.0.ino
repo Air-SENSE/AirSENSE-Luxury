@@ -33,6 +33,8 @@ void split_string();
 void read_file_inSD() ;
 void sendDataCalibToTFT();
 void senddatatoTFT();
+void O3_init();
+void getgetO3data();
 bool longPressButton();
 
 
@@ -63,6 +65,7 @@ void setup() {
   SDcard_init();
   timeClient.begin();
   SHT85_init();
+  O3_init();
   DS3231_init();
   initMqttClient(topic, espID, mqttClient);
   setup_TFT();

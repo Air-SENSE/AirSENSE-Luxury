@@ -1,3 +1,4 @@
+#ifdef O3_SENSOR_MQ131
 #include <MQ131.h>
 uint32_t lastgetO3data = millis();
 
@@ -6,7 +7,7 @@ uint32_t lastgetO3data = millis();
  *
  * @return  None
  */
-void MQ131_init()
+void O3_init()
 {
   MQ131.begin(2,4, LOW_CONCENTRATION, 1000000);  
   Serial.println("Calibration in progress...");
@@ -22,7 +23,8 @@ void MQ131_init()
  *
  * @return  None
  */
-void getO3data(){
+void getO3data()
+{
   if((millis()-lastgetO3data>5000) || (millis()<lastgetO3data))
   {
     TFT_o3_ppb = random(30,46);
@@ -37,3 +39,4 @@ void getO3data(){
     lastgetO3data = millis();
   }
 }
+#endif
