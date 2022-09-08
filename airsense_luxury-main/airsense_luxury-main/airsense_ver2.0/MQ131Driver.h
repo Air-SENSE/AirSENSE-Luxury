@@ -7,7 +7,7 @@ uint32_t lastgetO3data = millis();
  *
  * @return  None
  */
-void O3_init()
+void O3_Init()
 {
   MQ131.begin(2,4, LOW_CONCENTRATION, 1000000);  
   Serial.println("Calibration in progress...");
@@ -23,7 +23,7 @@ void O3_init()
  *
  * @return  None
  */
-void getO3data()
+void O3_GetData()
 {
   if((millis()-lastgetO3data>5000) || (millis()<lastgetO3data))
   {

@@ -17,58 +17,68 @@
 //========================== Cac ham su dung ========================
 
 
-void DS3231_init();
-void getDS3231data();
-void initMqttClient(char* _topic, char* _espID, PubSubClient& _mqttClient);
-void senddatatoMQTT(float hum,float tem,int pm1,int pm25,int pm10,float O3);
-void SDcard_init();
-void senddatatoSD(float hum,float tem,int pm1,int pm25,int pm10,int O3ppb,float O3ppm,float O3ug ,int minpm25, int maxpm25);
+void DS3231_Init();
+void DS3231_GetData();
+
+void MQTT_InitClient(char* _topic, char* _espID, PubSubClient& _mqttClient);
+void MQTT_PostData(float hum,float tem,int pm1,int pm25,int pm10,float O3);
+
+void SDcard_Init();
+void SDcard_GetData(float hum,float tem,int pm1,int pm25,int pm10,int O3ppb,float O3ppm,float O3ug ,int minpm25, int maxpm25);
+void SDcardScreen_SplitStringData();
+void SDcard_ReadFile();
+void SDcard_SaveDataFile();
 void runProgramWithSD();
-void getSHTdata();
-void SHT85_init();
-void getTFLP01data();
-void readDataFromDisplay();
-void sendCalibToSD();
-void split_string();
-void read_file_inSD() ;
-void sendDataCalibToTFT();
-void senddatatoTFT();
-void O3_init();
-void getgetO3data();
-bool longPressButton();
+
+void SHT_GetData();
+void SHT_Init();
+
+void TFLP01_GetData();
+
+void Screen_Init();
+void Screen_SaveCalibData2SDcard();
+void Screen_GetDisplayData();
+void Screen_DisplayData();
+void Screen_DisplayCalibData();
+
+void O3_Init();
+void O3_GetData();
+
+bool isLongPressButton();
 
 
 
 //========================== Khai bao cac file code ========================
 
 #include "./config.h"
-#include "./SHT85.h"
-#include "./TFLP01.h"
-#include "./DS3231.h"
-#include "./mqttServer.h"
-#include "./SDcard.h"
-#include "./MQ131.h"
-#include "./TFT.h"
+#include "./SHT85Driver.h"
+#include "./TFLP01Driver.h"
+#include "./DS3231Driver.h"
+#include "./MQTTConnection.h"
+#include "./SDcardDriver.h"
+#include "./MQ131Driver.h"
+#include "./NextionDriver.h"
 
 
 
 //==========================     SETUP       ========================
 
 void setup() {
-  myNex.NextionListen();
   Serial.begin(SERIAL_DEBUG_BAUDRATE);
   pinMode(PIN_BUTTON_1,	INPUT);
   Wire.begin(PIN_SDA_GPIO, PIN_SCL_GPIO, I2C_CLOCK_SPEED);
   WiFi.mode(WIFI_AP_STA);
   WiFi.begin();
   WiFi.macAddress(MacAddress1);
-  SDcard_init();
+  MQTT_InitClient(topic, espID, mqttClient);
   timeClient.begin();
-  SHT85_init();
-  O3_init();
-  DS3231_init();
-  initMqttClient(topic, espID, mqttClient);
-  setup_TFT();
+  // khoi tao cac cam bien
+  myNex.NextionListen();
+//  O3_init();
+  DS3231_Init();
+  SHT_Init();
+  SDcard_Init();
+  Screen_Init();
   // luu file text theo nam
   sprintf(nameFileCalib,"/calib-%d.txt",yearCalib);
 }
@@ -78,7 +88,7 @@ void setup() {
 void loop() {
     
 	// check button de smartConfig
-    if (longPressButton())
+    if (isLongPressButton())
     {
       uint8_t a=0;
       while (!WiFi.smartConfigDone() && a<120) {
@@ -101,20 +111,20 @@ void loop() {
       }
     }
 	// get data
-    getSHTdata();
-    getTFLP01data();
-    getDS3231data();
-    getO3data();
+    SHT_GetData();
+    TFLP01_GetData();
+    DS3231_GetData();
+//    O3_GetData();
 	// hien thi len man hinh
-    senddatatoTFT();
+    Screen_DisplayData();
     
 	//gui du lieu len mqtt va luu tru trong the nho
     if((millis()-lastsenddatatoSD_MQTT> 10000) || (millis()<lastsenddatatoSD_MQTT))
     {
 		// luu vao trong the nho
-      senddatatoSD(TFT_humi,TFT_temp,TFT_pm1,TFT_pm25,TFT_pm10,TFT_o3_ppb,TFT_o3_ppm,TFT_o3_ug,min_pm25,max_pm25);
+      SDcard_SaveDataFile(TFT_humi,TFT_temp,TFT_pm1,TFT_pm25,TFT_pm10,TFT_o3_ppb,TFT_o3_ppm,TFT_o3_ug,min_pm25,max_pm25);
       runProgramWithSD();
-      senddatatoMQTT(TFT_humi,TFT_temp,TFT_pm1,TFT_pm25,TFT_pm10,TFT_o3_ppb);
+      MQTT_PostData(TFT_humi,TFT_temp,TFT_pm1,TFT_pm25,TFT_pm10,TFT_o3_ppb);
       lastsenddatatoSD_MQTT = millis();
     }
     mqttClient.loop();
@@ -122,13 +132,13 @@ void loop() {
 }
 
 
-bool longPressButton()
+bool isLongPressButton()
 {
-  if (millis() - lastPressButton > 4000 && digitalRead(35) == 0)
+  if (millis() - lastPressButton > 4000 && digitalRead(PIN_BUTTON_1) == 0)
   {
     return true;
   }
-  else if (digitalRead(35) == 1)
+  else if (digitalRead(PIN_BUTTON_1) == 1)
   {
     lastPressButton = millis();
   }

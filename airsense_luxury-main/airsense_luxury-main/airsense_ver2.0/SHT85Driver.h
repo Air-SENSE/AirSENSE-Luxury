@@ -13,7 +13,7 @@ float 	 TFT_humi 		= 0;
  *
  * @return  None
  */
-void getSHTdata()
+void SHT_GetData()
 {
   if ( (millis() - lastReadSHT > 5000) || (millis() < lastReadSHT))
   {
@@ -48,13 +48,21 @@ void getSHTdata()
     lastReadSHT = millis(); 
   }
 }
-void SHT85_init(){
+
+/**
+ * @brief	Khoi tao SHT
+ *
+ * @return  None
+ */
+void SHT_Init(){
   if (sht.init()) {
 #ifdef	DEBUG_SERIAL
     Serial.print("SHT init(): success\n");
 #endif
   } else 
+  {
 #ifdef	DEBUG_SERIAL
   Serial.print("SHT init(): failed\n");
 #endif
+  }
 }

@@ -4,7 +4,7 @@
 //#define DEBUG_SERIAL
 
 //========================== DEFINE CHO MAN HINH ========================
-#define SERIAL_DEBUG_BAUDRATE 115200
+#define SERIAL_DEBUG_BAUDRATE 9600
 #define ERROR_READ_DISPLAY 777777
 
 //========================== DEFINE CHO MAN HINH ========================
@@ -27,7 +27,7 @@
 
 #define PIN_SDA_GPIO    26
 #define PIN_SCL_GPIO    27
-#define I2C_CLOCK_SPEED 100000
+#define I2C_CLOCK_SPEED 100000ul
 //========================== DEFINE CHO MAN HINH ========================
 
 #define PIN_NEO_PIXEL   23

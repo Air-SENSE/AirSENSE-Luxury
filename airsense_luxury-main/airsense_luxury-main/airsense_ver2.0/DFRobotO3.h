@@ -15,7 +15,7 @@ DFRobot_OzoneSensor Ozone;uint32_t lastgetO3data = millis();
  *
  * @return  None
  */
-void O3_init()
+void O3_Init()
 {
   if(!Ozone.begin(Ozone_IICAddress)) 
   {
@@ -34,7 +34,7 @@ void O3_init()
  *
  * @return  None
  */
-void getO3data()
+void O3_GetData()
 {
   if((millis()-lastgetO3data>5000) || (millis()<lastgetO3data))
   {

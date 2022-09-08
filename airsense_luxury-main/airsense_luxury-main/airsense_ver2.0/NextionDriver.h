@@ -17,18 +17,11 @@
 #include "string.h"
 #include <sstream>
 #include "config.h"
-#include "SDcard.h"
 #include "EasyNextionLibrary.h"
 #include <EEPROM.h>
 EasyNex myNex(Serial);
 
 
-char char_array[30];
-char fileNameCalib[] = "calib.txt";
-
-
-char nameFileCalib1[16];
-char nameFileCalib[16];
 
 
 /**
@@ -36,7 +29,7 @@ char nameFileCalib[16];
  *
  * @return  None
  */
-void setup_TFT(){
+void Screen_Init(){
     myNex.begin(9600);
     EEPROM.begin(512);
 }
@@ -47,7 +40,7 @@ void setup_TFT(){
  *
  * @return  None
  */
-void readDataFromDisplay()
+void Screen_GetDisplayData()
 {
     // cac bien de test
     int lastnumber = 0;
@@ -173,7 +166,7 @@ void readDataFromDisplay()
  *
  * @return  None
  */
-void sendCalibToSD()
+void Screen_SaveCalibData2SDcard()
 {
       if( tempFromDisplay < -100 || tempFromDisplay >1000 || humiFromDisplay < -100 || humiFromDisplay >1000 || pm1FromDisplay < -100 || pm1FromDisplay >1000 || pm10FromDisplay < -100  || pm10FromDisplay >1000 || pm25FromDisplay < -100 || pm25FromDisplay >1000)
       {
@@ -208,105 +201,14 @@ void sendCalibToSD()
       
 }
 
-/**
- * @brief	split gia tri du lieu tu the nho
- *
- * @return  None
- */
-void split_string()
-{
-#ifdef DEBUG_SERIAL
-    Serial.print("char_arr in split:"); 
-    Serial.println(char_array);
-#endif
-   char temp[30] = "";
-   char humi[30] = "";
-   char pm1[30] = "";
-   char pm10[30] = "";
-   char pm25[30] = "";
-   char tempFl[30] = "";
-   char humiFl[30] = "";
-    
-    // split string
-    char* pt = NULL;
-    pt = strtok(char_array, "|");
-    if(pt)
-    strcpy(temp, pt);
-    tempCalibInt = atoi(temp);
-    
-    pt = strtok(NULL, "|");
-    if(pt)
-    strcpy(humi, pt);
-    humiCalibInt = atoi(humi);
-    
-    pt = strtok(NULL, "|");
-    if(pt)
-    strcpy(pm1, pt);
-    pm1CalibInt = atoi(pm1);
 
-    pt = strtok(NULL, "|");
-    if(pt)
-    strcpy(pm10, pt);
-    pm10CalibInt = atoi(pm10);
-
-    pt = strtok(NULL, "|");
-    if(pt)
-    strcpy(pm25, pt);
-    pm25CalibInt = atoi(pm25);
-
-
-        pt = strtok(NULL, "|");
-    if(pt)
-    strcpy(tempFl, pt);
-    tempCalibFloat = atoi(tempFl);
-    
-        pt = strtok(NULL, "|");
-    if(pt)
-    strcpy(humiFl, pt);
-    humiCalibFloat = atoi(humiFl);
-#ifdef DEBUG_SERIAL
-    Serial.println("After Split: ");
-    Serial.println(tempCalibInt);
-    Serial.println(humiCalibInt);
-    Serial.println(pm1CalibInt);
-    Serial.println(pm10CalibInt);
-    Serial.println(pm25CalibInt);
-    Serial.println(tempCalibFloat);
-    Serial.println(humiCalibFloat);
-    Serial.println("*********");
-#endif
-}
-
-/**
- * @brief	Doc file tu trong the nho
- *
- * @return  None
- */
-void read_file_inSD() 
-{
-  myFile3 = SD.open(nameFileCalib, FILE_READ);
-  String finalString = "";
-
-  while (myFile3.available())
-  {
-    finalString += (char)myFile3.read();
-  }
-    strcpy(char_array, finalString.c_str());
-#ifdef DEBUG_SERIAL
-    Serial.println("--- Reading file ---");
-    Serial.print("char_array:");
-    Serial.println(char_array);
-#endif
-    split_string();
-    myFile3.close();
-}
 
 /**
  * @brief	Doc cac gia tri calib tu the nho len man hinh
  *
  * @return  None
  */
-void sendDataCalibToTFT(){
+void Screen_DisplayCalibData(){
   myNex.writeNum("dl.n9.val",dataCalibInt); //
   myNex.writeNum("dl.n4.val",tempCalibInt);
   myNex.writeNum("dl.n5.val",humiCalibInt);
@@ -322,7 +224,7 @@ void sendDataCalibToTFT(){
  *
  * @return  None
  */
-void senddatatoTFT(){
+void Screen_DisplayData(){
   myNex.writeNum("dl.wifi.val",TFT_wifi);
   myNex.writeNum("dl.sd.val",TFT_SDcard);
   

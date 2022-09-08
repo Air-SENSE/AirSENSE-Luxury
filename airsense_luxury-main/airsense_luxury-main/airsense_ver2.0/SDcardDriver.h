@@ -1,19 +1,24 @@
 #pragma once
 
 #include <SD.h>
-#include "config.h"
 File myFile;
 File myFile2;
 File myFile3;
 File myFile4;
 const int chipSelect = 5;
 
+char char_array[30];
+char fileNameCalib[] = "calib.txt";
+
+
+char nameFileCalib1[16];
+char nameFileCalib[16];
 /**
  * @brief	ham de khoi tao the nho
  *
  * @return  None
  */
-void SDcard_init()
+void SDcard_Init()
 {
   SPI.begin(PIN_NUM_CLK, PIN_NUM_MISO, PIN_NUM_MOSI, PIN_CS_SD_CARD);
   pinMode(SS, OUTPUT);
@@ -25,7 +30,98 @@ void SDcard_init()
     Serial.println("SD init done");
    }
 }
+/**
+ * @brief	split gia tri du lieu tu the nho
+ *
+ * @return  None
+ */
+void Screen_SplitStringData()
+{
+#ifdef DEBUG_SERIAL
+    Serial.print("char_arr in split:"); 
+    Serial.println(char_array);
+#endif
+   char temp[30] = "";
+   char humi[30] = "";
+   char pm1[30] = "";
+   char pm10[30] = "";
+   char pm25[30] = "";
+   char tempFl[30] = "";
+   char humiFl[30] = "";
+    
+    // split string
+    char* pt = NULL;
+    pt = strtok(char_array, "|");
+    if(pt)
+    strcpy(temp, pt);
+    tempCalibInt = atoi(temp);
+    
+    pt = strtok(NULL, "|");
+    if(pt)
+    strcpy(humi, pt);
+    humiCalibInt = atoi(humi);
+    
+    pt = strtok(NULL, "|");
+    if(pt)
+    strcpy(pm1, pt);
+    pm1CalibInt = atoi(pm1);
 
+    pt = strtok(NULL, "|");
+    if(pt)
+    strcpy(pm10, pt);
+    pm10CalibInt = atoi(pm10);
+
+    pt = strtok(NULL, "|");
+    if(pt)
+    strcpy(pm25, pt);
+    pm25CalibInt = atoi(pm25);
+
+
+        pt = strtok(NULL, "|");
+    if(pt)
+    strcpy(tempFl, pt);
+    tempCalibFloat = atoi(tempFl);
+    
+        pt = strtok(NULL, "|");
+    if(pt)
+    strcpy(humiFl, pt);
+    humiCalibFloat = atoi(humiFl);
+#ifdef DEBUG_SERIAL
+    Serial.println("After Split: ");
+    Serial.println(tempCalibInt);
+    Serial.println(humiCalibInt);
+    Serial.println(pm1CalibInt);
+    Serial.println(pm10CalibInt);
+    Serial.println(pm25CalibInt);
+    Serial.println(tempCalibFloat);
+    Serial.println(humiCalibFloat);
+    Serial.println("*********");
+#endif
+}
+
+/**
+ * @brief	Doc file tu trong the nho
+ *
+ * @return  None
+ */
+void SDcard_ReadFile() 
+{
+  myFile3 = SD.open(nameFileCalib, FILE_READ);
+  String finalString = "";
+
+  while (myFile3.available())
+  {
+    finalString += (char)myFile3.read();
+  }
+    strcpy(char_array, finalString.c_str());
+#ifdef DEBUG_SERIAL
+    Serial.println("--- Reading file ---");
+    Serial.print("char_array:");
+    Serial.println(char_array);
+#endif
+    Screen_SplitStringData();
+    myFile3.close();
+}
 
 /**
  * @brief	ham de luu gia tri vao the nho
@@ -41,7 +137,7 @@ void SDcard_init()
  * @param	maxpm25 - muc max cua pm25
  * @return  None
  */
-void senddatatoSD(float hum,float tem,int pm1,int pm25,int pm10,int O3ppb,float O3ppm,float O3ug ,int minpm25, int maxpm25)
+void SDcard_SaveDataFile(float hum,float tem,int pm1,int pm25,int pm10,int O3ppb,float O3ppm,float O3ug ,int minpm25, int maxpm25)
 {
     DateTime now = rtc.now();
     int getyear =now.year();
@@ -96,22 +192,22 @@ void senddatatoSD(float hum,float tem,int pm1,int pm25,int pm10,int O3ppb,float 
 void runProgramWithSD()
 {
     // doc gia tri tu man hinh
-    readDataFromDisplay();
+    Screen_GetDisplayData();
 	// neu man hinh moi khoi tao
     if( tempFromDisplay == 0 && humiFromDisplay == 0 && pm1FromDisplay == 0 && pm10FromDisplay == 0 && pm25FromDisplay == 0)
     {
 		// doc gia tri tu the nho
-      read_file_inSD();
+      SDcard_ReadFile();
 		// gui gia tri len man hinh calib
-      sendDataCalibToTFT();
+      Screen_DisplayCalibData();
     }
     else
     {
 		// doc gia tri tu calib vao the sd
-		sendCalibToSD();
+		Screen_SaveCalibData2SDcard();
 		// doc nguoc lai the sd
-		read_file_inSD();
+		SDcard_ReadFile();
 		// hien thi lai len man hinh
-		sendDataCalibToTFT();
+		Screen_DisplayCalibData();
     }
 }

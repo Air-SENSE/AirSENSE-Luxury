@@ -21,7 +21,7 @@ uint32_t lastSenddatatoMQTT = millis();
  * @param	_mqttClient - bien luu tru ket noi
  * @return None
  */
-void initMqttClient(char* _topic, char* _espID, PubSubClient& _mqttClient)
+void MQTT_InitClient(char* _topic, char* _espID, PubSubClient& _mqttClient)
 {
   uint8_t espMacAddress[6];
   WiFi.macAddress(espMacAddress);
@@ -45,7 +45,7 @@ void initMqttClient(char* _topic, char* _espID, PubSubClient& _mqttClient)
  * @param	03 - 03
  * @return  None
  */
-void senddatatoMQTT(float hum,float tem,int pm1,int pm25,int pm10,float O3)
+void MQTT_PostData(float hum,float tem,int pm1,int pm25,int pm10,float O3)
 {
     if (WiFi.status() == WL_CONNECTED)
     {

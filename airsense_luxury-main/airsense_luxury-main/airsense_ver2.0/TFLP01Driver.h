@@ -16,7 +16,7 @@ int 	 min_pm25			= 1000;
  *
  * @return  None
  */
-void getTFLP01data()
+void TFLP01_GetData()
 {
   uint8_t TFLP01data[17] = {0};
   while (Serial.available() > 0) 

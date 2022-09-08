@@ -11,7 +11,7 @@ char  TFT_time[16];
  *
  * @return  None
  */
-void DS3231_init()
+void DS3231_Init()
 {
   rtc.begin();
   if (WiFi.status() == WL_CONNECTED){
@@ -45,7 +45,7 @@ void DS3231_init()
  *
  * @return  None
  */
-void getDS3231data()
+void DS3231_GetData()
 {
     DateTime now = rtc.now();
     if(now.hour()<10 && now.minute()<10){
