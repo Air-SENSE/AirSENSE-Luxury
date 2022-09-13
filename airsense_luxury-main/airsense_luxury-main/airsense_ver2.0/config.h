@@ -1,10 +1,17 @@
 #pragma once
 
 
-//#define DEBUG_SERIAL
+//========================== DEFINE CHO TOAN BO CODE ========================
+#define DEBUG_SERIAL
+#define USING_SD_CARD
+#define USING_MQTT
+
+//#define O3_SENSOR
+//#define O3_SENSOR_DF_ROBOT
+//#define O3_SENSOR_MQ131
 
 //========================== DEFINE CHO MAN HINH ========================
-#define SERIAL_DEBUG_BAUDRATE 9600
+#define SERIAL_DEBUG_BAUDRATE 115200
 #define ERROR_READ_DISPLAY 777777
 
 //========================== DEFINE CHO MAN HINH ========================

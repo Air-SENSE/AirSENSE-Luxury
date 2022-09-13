@@ -34,6 +34,7 @@ void SHT_GetData();
 void SHT_Init();
 
 void TFLP01_GetData();
+void TFLP01_Init();
 
 void Screen_Init();
 void Screen_SaveCalibData2SDcard();
@@ -64,23 +65,48 @@ bool isLongPressButton();
 //==========================     SETUP       ========================
 
 void setup() {
+  myNex.NextionListen();
   Serial.begin(SERIAL_DEBUG_BAUDRATE);
   pinMode(PIN_BUTTON_1,	INPUT);
   Wire.begin(PIN_SDA_GPIO, PIN_SCL_GPIO, I2C_CLOCK_SPEED);
-  WiFi.mode(WIFI_AP_STA);
   WiFi.begin();
   WiFi.macAddress(MacAddress1);
+  
+#ifdef USING_MQTT
   MQTT_InitClient(topic, espID, mqttClient);
   timeClient.begin();
+#endif
   // khoi tao cac cam bien
-  myNex.NextionListen();
-//  O3_init();
-  DS3231_Init();
+#ifdef O3_SENSOR
+  Serial.println("Check Ozone Sensor");
+  O3_init();
+  delay(10);
+#endif
+
+  Serial.println("Check Dusty  Sensor");
+  TFLP01_Init();
+  delay(10);
+  
+  Serial.println("Check Temperature and Humidity Sensor");
   SHT_Init();
+  delay(10);
+  
+  Serial.println("Check RTC Module");
+  DS3231_Init();
+  delay(10);
+#ifdef USING_SD_CARD
+  Serial.println("Check SD");
   SDcard_Init();
-  Screen_Init();
-  // luu file text theo nam
+  delay(10);
+#endif
+
+  Serial.println("Check Screen");
+//  Screen_Init();
+
+#ifdef USING_SD_CARD
+//   luu file text theo nam
   sprintf(nameFileCalib,"/calib-%d.txt",yearCalib);
+#endif
 }
 
 //==========================     LOOP       ========================
@@ -92,7 +118,7 @@ void loop() {
     {
       uint8_t a=0;
       while (!WiFi.smartConfigDone() && a<120) {
-        delay(500);
+        Serial.println(".");
         TFT_wifi = 2;
         myNex.writeNum("dl.wifi.val",TFT_wifi);
         a++;
@@ -114,21 +140,29 @@ void loop() {
     SHT_GetData();
     TFLP01_GetData();
     DS3231_GetData();
-//    O3_GetData();
+#ifdef O3_SENSOR
+    O3_GetData();
+#endif
 	// hien thi len man hinh
     Screen_DisplayData();
-    
+
+
 	//gui du lieu len mqtt va luu tru trong the nho
     if((millis()-lastsenddatatoSD_MQTT> 10000) || (millis()<lastsenddatatoSD_MQTT))
     {
-		// luu vao trong the nho
+#ifdef USING_SD_CARD
+//		// luu vao trong the nho
       SDcard_SaveDataFile(TFT_humi,TFT_temp,TFT_pm1,TFT_pm25,TFT_pm10,TFT_o3_ppb,TFT_o3_ppm,TFT_o3_ug,min_pm25,max_pm25);
       runProgramWithSD();
+#endif
+#ifdef USING_MQTT
       MQTT_PostData(TFT_humi,TFT_temp,TFT_pm1,TFT_pm25,TFT_pm10,TFT_o3_ppb);
+#endif
       lastsenddatatoSD_MQTT = millis();
     }
+#ifdef USING_MQTT
     mqttClient.loop();
-
+#endif
 }
 
 

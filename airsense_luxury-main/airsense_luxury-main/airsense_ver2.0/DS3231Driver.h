@@ -61,4 +61,7 @@ void DS3231_GetData()
       sprintf(TFT_time,"%d:%d  %d/%d/%d",int(now.hour()),int(now.minute()),int(now.day()),int(now.month()),int(now.year()%2000));
     } 
     
+#ifdef  DEBUG_SERIAL
+      Serial.println(TFT_time);
+#endif
 }

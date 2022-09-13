@@ -30,7 +30,7 @@ EasyNex myNex(Serial);
  * @return  None
  */
 void Screen_Init(){
-    myNex.begin(9600);
+    myNex.begin(SERIAL_DEBUG_BAUDRATE);
     EEPROM.begin(512);
 }
 
