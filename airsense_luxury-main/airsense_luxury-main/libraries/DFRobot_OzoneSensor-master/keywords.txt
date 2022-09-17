@@ -1,0 +1,34 @@
+#######################################
+# Syntax Coloring DFRobot_GasSensor
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFRobot_GasSensor	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+setModes	KEYWORD2
+readOzoneData	KEYWORD2
+ReadOxygenData	KEYWORD2
+SetKeys	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+OZONE_ADDRESS_0	LITERAL1
+OZONE_ADDRESS_1	LITERAL1
+OZONE_ADDRESS_2	LITERAL1
+OZONE_ADDRESS_3	LITERAL1
+MEASURE_MODE_AUTOMATIC	LITERAL1
+MEASURE_MODE_PASSIVE	LITERAL1
+ORIGINAL_DATA	LITERAL1
+MEDIAN_DATA	LITERAL1
+
+

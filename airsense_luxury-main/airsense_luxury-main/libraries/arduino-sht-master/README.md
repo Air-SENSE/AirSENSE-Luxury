@@ -3,17 +3,24 @@ Repository for Sensirion humidity and temperature sensor support on Arduino
 
 ## Supported sensors:
 - SHTC1
+- SHTC3
 - SHTW1
 - SHTW2
 - SHT3x-DIS (I2C)
 - SHT3x-ARP (ratiometric analog voltage output)
 - SHT85
+- SHT4x
 
 ## Installation
 
-Download arduino-sht either via git or from the releases page and place it in
-your Arduino/libraries directory. After restarting the Arduino IDE, you will see
-the new SHTSensor menu items under libraries and examples.
+The recommended way to install ```arduino-sht``` is through the Library
+Manager of the Arduino IDE. To access it, go to the ```Tools``` menu and
+select ```Manage Libraries...```, and search for the library name there.
+
+If you prefer to install it manually, you can download either via git or from
+the releases page and place it in your Arduino/libraries directory. After
+restarting the Arduino IDE, you will see the new SHTSensor menu items under
+libraries and examples.
 
 ## Integrating it into your sketch
 

@@ -30,6 +30,7 @@
 #define SHTSENSOR_H
 
 #include <inttypes.h>
+#include <Wire.h>
 
 // Forward declaration
 class SHTSensorDriver;
@@ -52,11 +53,14 @@ public:
     // i2c Sensors:
     /** SHT3x-DIS with ADDR (sensor pin 2) connected to VSS (default) */
     SHT3X,
+    SHT85,
     /** SHT3x-DIS with ADDR (sensor pin 2) connected to VDD */
     SHT3X_ALT,
     SHTC1,
+    SHTC3,
     SHTW1,
-    SHTW2
+    SHTW2,
+    SHT4X
   };
 
   /**
@@ -78,7 +82,7 @@ public:
   static const float TEMPERATURE_INVALID;
   /**
    * Auto-detectable sensor types.
-   * Note that the SHTW1 and SHTW2 share exactly the same driver as the SHTC1
+   * Note that the SHTC3, SHTW1 and SHTW2 share exactly the same driver as the SHTC1
    * and are thus not listed individually.
    */
   static const SHTSensorType AUTO_DETECT_SENSORS[];
@@ -101,11 +105,20 @@ public:
   }
 
   /**
-   * Initialize the sensor driver
+   * Initialize the sensor driver, and probe for the sensor on the bus
+   *
+   * If SHTSensor() was created with an empty constructor or with 'sensorType'
+   * AUTO_DETECT, init() will also try to automatically detect a sensor.
+   * Auto detection will stop as soon as the first sensor was found; if you have
+   * multiple sensor types on the bus, use the 'sensorType' argument of the
+   * constructor to control which sensor type will be instantiated.
+   *
    * To read out the sensor use readSample(), followed by getTemperature() and
    * getHumidity() to retrieve the values from the sample
+   *
+   * Returns true if communication with a sensor on the bus was successful, false otherwise
    */
-  bool init();
+  bool init(TwoWire & wire = Wire);
 
   /**
    * Read new values from the sensor
@@ -137,10 +150,12 @@ public:
    */
   bool setAccuracy(SHTAccuracy newAccuracy);
 
+  SHTSensorType mSensorType;
+
 private:
   void cleanup();
 
-  SHTSensorType mSensorType;
+
   SHTSensorDriver *mSensor;
   float mTemperature;
   float mHumidity;
@@ -157,7 +172,7 @@ public:
    * Set the sensor accuracy.
    * Returns false if the sensor does not support changing the accuracy
    */
-  virtual bool setAccuracy(SHTSensor::SHTAccuracy newAccuracy) {
+  virtual bool setAccuracy(SHTSensor::SHTAccuracy /* newAccuracy */) {
     return false;
   }
 
@@ -188,7 +203,7 @@ public:
 class SHTI2cSensor : public SHTSensorDriver {
 public:
   /** Size of i2c commands to send */
-  static const uint8_t CMD_SIZE;
+
 
   /** Size of i2c replies to expect */
   static const uint8_t EXPECTED_DATA_SIZE;
@@ -201,14 +216,16 @@ public:
    * the formula: temperature = a + b * (rawTemperature / c)
    * and the values `x' and `y' to convert the fixed-point humidity value
    * received by the sensor to a floating point value using the formula:
-   * humidity = x * (rawHumidity / y)
+   * humidity = x + y * (rawHumidity / z)
    * duration is the duration in milliseconds of one measurement
    */
   SHTI2cSensor(uint8_t i2cAddress, uint16_t i2cCommand, uint8_t duration,
                float a, float b, float c,
-               float x, float y)
+               float x, float y, float z, uint8_t cmd_Size,
+               TwoWire & wire = Wire)
       : mI2cAddress(i2cAddress), mI2cCommand(i2cCommand), mDuration(duration),
-        mA(a), mB(b), mC(c), mX(x), mY(y)
+        mA(a), mB(b), mC(c), mX(x), mY(y), mZ(z), mCmd_Size(cmd_Size),
+        mWire(wire)
   {
   }
 
@@ -226,10 +243,14 @@ public:
   float mC;
   float mX;
   float mY;
+  float mZ;
+  uint8_t mCmd_Size;
+  TwoWire & mWire;
 
 private:
   static uint8_t crc8(const uint8_t *data, uint8_t len);
-  static bool readFromI2c(uint8_t i2cAddress,
+  static bool readFromI2c(TwoWire & wire,
+                          uint8_t i2cAddress,
                           const uint8_t *i2cCommand,
                           uint8_t commandLength, uint8_t *data,
                           uint8_t dataLength, uint8_t duration);
